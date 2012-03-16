@@ -22,10 +22,10 @@
     IN THE SOFTWARE.
 */
 
-#ifndef __ZMQ_HPP_INCLUDED__
-#define __ZMQ_HPP_INCLUDED__
+#ifndef __XS_HPP_INCLUDED__
+#define __XS_HPP_INCLUDED__
 
-#include <zmq.h>
+#include <xs.h>
 
 #include <cassert>
 #include <cstring>
@@ -36,40 +36,40 @@
 #if (defined(__GNUC__) && (__GNUC__ > 4 || \
       (__GNUC__ == 4 && __GNUC_MINOR__ > 2)) && \
       defined(__GXX_EXPERIMENTAL_CXX0X__))
-    #define ZMQ_HAS_RVALUE_REFS
+    #define XS_HAS_RVALUE_REFS
 #endif
 #if (defined(__clang__))
     #if __has_feature(cxx_rvalue_references)
-        #define ZMQ_HAS_RVALUE_REFS
+        #define XS_HAS_RVALUE_REFS
     #endif
 #endif
 #if (defined(_MSC_VER) && (_MSC_VER >= 1600))
-    #define ZMQ_HAS_RVALUE_REFS
+    #define XS_HAS_RVALUE_REFS
 #endif
 
 // In order to prevent unused variable warnings when building in non-debug
 // mode use this macro to make assertions.
 #ifndef NDEBUG
-#   define ZMQ_ASSERT(expression) assert(expression)
+#   define XS_ASSERT(expression) assert(expression)
 #else
-#   define ZMQ_ASSERT(expression) (expression)
+#   define XS_ASSERT(expression) (expression)
 #endif
 
-namespace zmq
+namespace xs
 {
 
-    typedef zmq_free_fn free_fn;
-    typedef zmq_pollitem_t pollitem_t;
+    typedef xs_free_fn free_fn;
+    typedef xs_pollitem_t pollitem_t;
 
     class error_t : public std::exception
     {
     public:
 
-        error_t () : errnum (zmq_errno ()) {}
+        error_t () : errnum (xs_errno ()) {}
 
         virtual const char *what () const throw ()
         {
-            return zmq_strerror (errnum);
+            return xs_strerror (errnum);
         }
 
         int num () const
@@ -82,9 +82,9 @@ namespace zmq
         int errnum;
     };
 
-    inline int poll (zmq_pollitem_t *items_, int nitems_, long timeout_ = -1)
+    inline int poll (xs_pollitem_t *items_, int nitems_, long timeout_ = -1)
     {
-        int rc = zmq_poll (items_, nitems_, timeout_);
+        int rc = xs_poll (items_, nitems_, timeout_);
         if (rc < 0)
             throw error_t ();
         return rc;
@@ -92,7 +92,7 @@ namespace zmq
 
     inline void version (int *major_, int *minor_, int *patch_)
     {
-        zmq_version (major_, minor_, patch_);
+        xs_version (major_, minor_, patch_);
     }
 
     class message_t
@@ -103,14 +103,14 @@ namespace zmq
 
         inline message_t ()
         {
-            int rc = zmq_msg_init (&msg);
+            int rc = xs_msg_init (&msg);
             if (rc != 0)
                 throw error_t ();
         }
 
         inline message_t (size_t size_)
         {
-            int rc = zmq_msg_init_size (&msg, size_);
+            int rc = xs_msg_init_size (&msg, size_);
             if (rc != 0)
                 throw error_t ();
         }
@@ -118,33 +118,33 @@ namespace zmq
         inline message_t (void *data_, size_t size_, free_fn *ffn_,
             void *hint_ = NULL)
         {
-            int rc = zmq_msg_init_data (&msg, data_, size_, ffn_, hint_);
+            int rc = xs_msg_init_data (&msg, data_, size_, ffn_, hint_);
             if (rc != 0)
                 throw error_t ();
         }
 
         inline ~message_t ()
         {
-            int rc = zmq_msg_close (&msg);
-            ZMQ_ASSERT (rc == 0);
+            int rc = xs_msg_close (&msg);
+            XS_ASSERT (rc == 0);
         }
 
         inline void rebuild ()
         {
-            int rc = zmq_msg_close (&msg);
+            int rc = xs_msg_close (&msg);
             if (rc != 0)
                 throw error_t ();
-            rc = zmq_msg_init (&msg);
+            rc = xs_msg_init (&msg);
             if (rc != 0)
                 throw error_t ();
         }
 
         inline void rebuild (size_t size_)
         {
-            int rc = zmq_msg_close (&msg);
+            int rc = xs_msg_close (&msg);
             if (rc != 0)
                 throw error_t ();
-            rc = zmq_msg_init_size (&msg, size_);
+            rc = xs_msg_init_size (&msg, size_);
             if (rc != 0)
                 throw error_t ();
         }
@@ -152,42 +152,42 @@ namespace zmq
         inline void rebuild (void *data_, size_t size_, free_fn *ffn_,
             void *hint_ = NULL)
         {
-            int rc = zmq_msg_close (&msg);
+            int rc = xs_msg_close (&msg);
             if (rc != 0)
                 throw error_t ();
-            rc = zmq_msg_init_data (&msg, data_, size_, ffn_, hint_);
+            rc = xs_msg_init_data (&msg, data_, size_, ffn_, hint_);
             if (rc != 0)
                 throw error_t ();
         }
 
         inline void move (message_t *msg_)
         {
-            int rc = zmq_msg_move (&msg, &(msg_->msg));
+            int rc = xs_msg_move (&msg, &(msg_->msg));
             if (rc != 0)
                 throw error_t ();
         }
 
         inline void copy (message_t *msg_)
         {
-            int rc = zmq_msg_copy (&msg, &(msg_->msg));
+            int rc = xs_msg_copy (&msg, &(msg_->msg));
             if (rc != 0)
                 throw error_t ();
         }
 
         inline void *data ()
         {
-            return zmq_msg_data (&msg);
+            return xs_msg_data (&msg);
         }
 
         inline size_t size ()
         {
-            return zmq_msg_size (&msg);
+            return xs_msg_size (&msg);
         }
 
     private:
 
         //  The underlying message
-        zmq_msg_t msg;
+        xs_msg_t msg;
 
         //  Disable implicit message copying, so that users won't use shared
         //  messages (less efficient) without being aware of the fact.
@@ -201,14 +201,14 @@ namespace zmq
 
     public:
 
-        inline context_t (int io_threads_)
+        inline context_t ()
         {
-            ptr = zmq_init (io_threads_);
+            ptr = xs_init ();
             if (ptr == NULL)
                 throw error_t ();
         }
 
-#ifdef ZMQ_HAS_RVALUE_REFS
+#ifdef XS_HAS_RVALUE_REFS
         inline context_t (context_t &&rhs) : ptr (rhs.ptr)
         {
             rhs.ptr = NULL;
@@ -224,8 +224,16 @@ namespace zmq
         {
             if (ptr == NULL)
                 return;
-            int rc = zmq_term (ptr);
-            ZMQ_ASSERT (rc == 0);
+            int rc = xs_term (ptr);
+            XS_ASSERT (rc == 0);
+        }
+
+        inline void setctxopt (int option_, const void *optval_,
+            size_t optvallen_)
+        {
+            int rc = xs_setctxopt (ptr, option_, optval_, optvallen_);
+            if (rc != 0)
+                throw error_t ();
         }
 
         //  Be careful with this, it's probably only useful for
@@ -250,12 +258,12 @@ namespace zmq
 
         inline socket_t (context_t &context_, int type_)
         {
-            ptr = zmq_socket (context_.ptr, type_);
+            ptr = xs_socket (context_.ptr, type_);
             if (ptr == NULL)
                 throw error_t ();
         }
 
-#ifdef ZMQ_HAS_RVALUE_REFS
+#ifdef XS_HAS_RVALUE_REFS
         inline socket_t(socket_t&& rhs) : ptr(rhs.ptr)
         {
             rhs.ptr = NULL;
@@ -282,15 +290,15 @@ namespace zmq
             if(ptr == NULL)
                 // already closed
                 return ;
-            int rc = zmq_close (ptr);
-            ZMQ_ASSERT (rc == 0);
+            int rc = xs_close (ptr);
+            XS_ASSERT (rc == 0);
             ptr = 0 ;
         }
 
         inline void setsockopt (int option_, const void *optval_,
             size_t optvallen_)
         {
-            int rc = zmq_setsockopt (ptr, option_, optval_, optvallen_);
+            int rc = xs_setsockopt (ptr, option_, optval_, optvallen_);
             if (rc != 0)
                 throw error_t ();
         }
@@ -298,61 +306,61 @@ namespace zmq
         inline void getsockopt (int option_, void *optval_,
             size_t *optvallen_)
         {
-            int rc = zmq_getsockopt (ptr, option_, optval_, optvallen_);
+            int rc = xs_getsockopt (ptr, option_, optval_, optvallen_);
             if (rc != 0)
                 throw error_t ();
         }
 
         inline void bind (const char *addr_)
         {
-            int rc = zmq_bind (ptr, addr_);
+            int rc = xs_bind (ptr, addr_);
             if (rc != 0)
                 throw error_t ();
         }
 
         inline void connect (const char *addr_)
         {
-            int rc = zmq_connect (ptr, addr_);
+            int rc = xs_connect (ptr, addr_);
             if (rc != 0)
                 throw error_t ();
         }
 
         inline size_t send (const void *buf_, size_t len_, int flags_ = 0)
         {
-            int nbytes = zmq_send (ptr, buf_, len_, flags_);
+            int nbytes = xs_send (ptr, buf_, len_, flags_);
             if (nbytes >= 0)
                 return (size_t) nbytes;
-            if (zmq_errno () == EAGAIN)
+            if (xs_errno () == EAGAIN)
                 return 0;
             throw error_t ();
         }
 
         inline bool send (message_t &msg_, int flags_ = 0)
         {
-            int nbytes = zmq_sendmsg (ptr, &(msg_.msg), flags_);
+            int nbytes = xs_sendmsg (ptr, &(msg_.msg), flags_);
             if (nbytes >= 0)
                 return true;
-            if (zmq_errno () == EAGAIN)
+            if (xs_errno () == EAGAIN)
                 return false;
             throw error_t ();
         }
 
         inline size_t recv (void *buf_, size_t len_, int flags_ = 0)
         {
-            int nbytes = zmq_recv (ptr, buf_, len_, flags_);
+            int nbytes = xs_recv (ptr, buf_, len_, flags_);
             if (nbytes >= 0)
                 return (size_t) nbytes;
-            if (zmq_errno () == EAGAIN)
+            if (xs_errno () == EAGAIN)
                 return 0;
             throw error_t ();
         }
 
         inline bool recv (message_t *msg_, int flags_ = 0)
         {
-            int nbytes = zmq_recvmsg (ptr, &(msg_->msg), flags_);
+            int nbytes = xs_recvmsg (ptr, &(msg_->msg), flags_);
             if (nbytes >= 0)
                 return true;
-            if (zmq_errno () == EAGAIN)
+            if (xs_errno () == EAGAIN)
                 return false;
             throw error_t ();
         }

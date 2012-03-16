@@ -1,1 +1,26 @@
-This is C++ binding for 0MQ
+This is C++ binding for Crossroads I/O
+======================================
+
+Build and installation
+----------------------
+
+C++ binding consists of a single header file -- xs.hpp. No special build
+steps are needed. To install, copy the file onto your include path.
+
+Documentation
+-------------
+
+The documentation is available as zmq_cpp(7) manual page.
+
+Bug Reporting
+-------------
+
+To report a bug, send an email describing your problem to the Crossroads
+mailing list (crossroads-dev@groups.crossroads.io). Prefix the subject of the
+email by [BUG] to make bug reports easier to spot.
+
+Mailing List
+------------
+
+Discussions about C++ language binding take place on the Crossroads
+mailing list (crossroads-dev@groups.crossroads.io).
