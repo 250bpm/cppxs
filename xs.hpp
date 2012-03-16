@@ -184,6 +184,14 @@ namespace xs
             return xs_msg_size (&msg);
         }
 
+        inline void getmsgopt (int option_, void *optval_,
+            size_t *optvallen_)
+        {
+            int rc = xs_getmsgopt (&msg, option_, optval_, optvallen_);
+            if (rc != 0)
+                throw error_t ();
+        }
+
     private:
 
         //  The underlying message
@@ -288,8 +296,8 @@ namespace xs
         inline void close()
         {
             if(ptr == NULL)
-                // already closed
                 return ;
+
             int rc = xs_close (ptr);
             XS_ASSERT (rc == 0);
             ptr = 0 ;

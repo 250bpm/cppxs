@@ -91,6 +91,8 @@ xs_msg_init_size().
 message_t::rebuild(void *data, size_t size, free_fn *ffn, void *hint = NULL)
 maps to xs_msg_close() and subsequent xs_msg_init_data().
 
+message_t::getmsgopt() maps to xs_getmsgopt() function.
+
 Input/output multiplexing
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
