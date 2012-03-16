@@ -7,6 +7,11 @@ Build and installation
 C++ binding consists of a single header file -- xs.hpp. No special build
 steps are needed. To install, copy the file onto your include path.
 
+License
+-------
+
+The project is licensed under MIT license. See xs.hpp for the exact wording.
+
 Synopsis
 --------
 
