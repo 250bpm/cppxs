@@ -7,10 +7,113 @@ Build and installation
 C++ binding consists of a single header file -- xs.hpp. No special build
 steps are needed. To install, copy the file onto your include path.
 
-Documentation
--------------
+Synopsis
+--------
 
-The documentation is available as zmq_cpp(7) manual page.
+    #include <xs.hpp>
+
+
+Description
+-----------
+This manual page describes how the Crossroads C++ language binding maps to the
+underlying Crossroads C library functions. 
+
+All constants defined by xs.h are also available to the C++ language
+binding.
+
+The following classes are provided in the 'xs' namespace:
+
+Context
+~~~~~~~
+The 'context_t' class encapsulates functionality dealing with the
+initialisation and termination of a Crossroads context.
+
+context_t::context_t() maps to the xs_init() function.
+
+context_t::~context_t() maps to the xs_term() function.
+
+context_t::setctxopt () maps to xs_setctxopt() function.
+
+Socket
+~~~~~~
+The 'socket_t' class encapsulates a Crossroads socket.
+
+socket_t::socket_t() maps to the xs_socket() function.
+
+socket_t::~socket_t() maps to xs_close() function.
+
+socket_t::getsockopt() maps to the xs_getsockopt() function.
+
+socket_t::setsockopt() maps to the xs_setsockopt() function.
+
+socket_t::bind() maps to the xs_bind() function.
+
+socket_t::connect() maps to the xs_connect() function.
+
+socket_t::send(const void *buf, size_t len, int flags = 0) maps to xs_send()
+function.
+
+socket_t::send(message_t &msg, int flags = 0) maps to xs_sendmsg() function.
+The method returns true if message is successfully sent, false if it is not.
+
+socket_t::recv(void *buf, size_t len, int flags = 0) maps to xs_recv() function.
+
+socket_t::recv(message_t *msg, int flags = 0) maps to xs_recvmsg() function.
+The method returns true if message is successfully received, false if it is not.
+
+Message
+~~~~~~~
+The 'message_t' class encapsulates the xs_msg_t structure and
+functions to construct, destruct and manipulate Crossroads messages.
+
+message_t::message_t(void) maps to xs_msg_init() function.
+
+message_t::message_t(size_t size) maps to xs_msg_init_size() function.
+
+message_t::message_t(void *data, size_t size, free_fn *ffn, void *hint = NULL)
+maps to xs_msg_init_data() function.
+
+message_t::~message_t() maps to xs_msg_close() function.
+
+message_t::data() maps to xs_msg_data() function.
+
+message_t::size() maps to xs_msg_size() function.
+
+message_t::copy (message_t *src) maps to the xs_msg_copy() function.
+
+message_t::move (message_t *src) maps to the xs_msg_move() function.
+
+message_t::rebuild(void) maps to xs_msg_close() and subsequent xs_msg_init().
+
+message_t::rebuild(size_t size) maps to xs_msg_close() and subsequent
+xs_msg_init_size().
+
+message_t::rebuild(void *data, size_t size, free_fn *ffn, void *hint = NULL)
+maps to xs_msg_close() and subsequent xs_msg_init_data().
+
+Input/output multiplexing
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+xs::poll() maps to xs_poll() function. To obtain a Crossroads  socket handle
+for use in a xs::pollitem_t structure, you should cast an instance of the
+socket_t class to void*.
+
+Error handling
+--------------
+All errors reported by the underlying Crossroads C library functions are
+automatically converted to exceptions by the C++ language binding.
+The 'xs::error_t' class is derived from the 'std::exception' class and uses the
+xs_strerror() function to convert the error code to human-readable string.
+
+Example
+-------
+
+    xs::context_t ctx;
+    xs::socket_t s (ctx, XS_PUB);
+    s.connect ("tcp://192.168.0.115:5555");
+    xs::message_t msg (100);
+    memset (xs.data (), 0, 100);
+    s.send (msg);
 
 Bug Reporting
 -------------
