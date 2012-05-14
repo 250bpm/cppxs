@@ -319,16 +319,25 @@ namespace xs
                 throw error_t ();
         }
 
-        inline void bind (const char *addr_)
+        inline int bind (const char *addr_)
         {
             int rc = xs_bind (ptr, addr_);
-            if (rc != 0)
+            if (rc == -1)
                 throw error_t ();
+            return rc;
         }
 
-        inline void connect (const char *addr_)
+        inline int connect (const char *addr_)
         {
             int rc = xs_connect (ptr, addr_);
+            if (rc == -1)
+                throw error_t ();
+            return rc;
+        }
+
+        inline void shutdown (int how_)
+        {
+            int rc = xs_shutdown (ptr_, how_);
             if (rc != 0)
                 throw error_t ();
         }
