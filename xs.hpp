@@ -337,7 +337,7 @@ namespace xs
 
         inline void shutdown (int how_)
         {
-            int rc = xs_shutdown (ptr_, how_);
+            int rc = xs_shutdown (ptr, how_);
             if (rc != 0)
                 throw error_t ();
         }
