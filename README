@@ -55,6 +55,8 @@ socket_t::bind() maps to the xs_bind() function.
 
 socket_t::connect() maps to the xs_connect() function.
 
+socket_t::shutdown() maps to the xs_shutdown() function.
+
 socket_t::send(const void *buf, size_t len, int flags = 0) maps to xs_send()
 function.
 
