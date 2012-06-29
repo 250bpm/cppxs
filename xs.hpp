@@ -25,7 +25,7 @@
 #ifndef __XS_HPP_INCLUDED__
 #define __XS_HPP_INCLUDED__
 
-#include <xs.h>
+#include <xs/xs.h>
 
 #include <cassert>
 #include <cstring>
